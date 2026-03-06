@@ -1,8 +1,8 @@
 <?php
 $servername = "localhost";   // XAMPP default
-$username   = "root";        // default MySQL user
-$password   = "";            // default has no password
-$dbname     = "agro_marketplace"; // your database name
+$username = "root";        // default MySQL user
+$password = "";            // default has no password
+$dbname = "agri-marketplace"; // your database name
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);

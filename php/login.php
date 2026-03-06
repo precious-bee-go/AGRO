@@ -2,13 +2,13 @@
 include 'db_connect.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $email    = $_POST['email'];
+    $email = mysqli_real_escape_string($conn, $_POST['email']);
     $password = $_POST['password'];
 
     $sql = "SELECT * FROM users WHERE email='$email'";
     $result = $conn->query($sql);
 
-    if ($result->num_rows > 0) {
+    if ($result && $result->num_rows > 0) {
         $row = $result->fetch_assoc();
         if (password_verify($password, $row['password'])) {
             echo "Login successful! Welcome " . $row['name'];
@@ -18,6 +18,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } else {
         echo "No user found with that email.";
     }
-}`
+}
 $conn->close();
 ?>

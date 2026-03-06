@@ -1,96 +1,119 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: sans-serif;
-}
-
-/* General page styling */
-body {
-    font-family: Arial, sans-serif;
-    background-color: whitesmoke;
+/* --- LOGIN PAGE STYLING --- */
+.login-page {
+    background: linear-gradient(135deg, #f1f8f0 0%, #e8f0e7 100%);
     display: flex;
+    align-items: center;
     justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
+    min-height: 100vh;
+    padding: 20px;
 }
 
-/* Container styling */
-.container {
-    background-color:white;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 300px;
+.login-container {
+    width: 100%;
+    max-width: 450px;
 }
 
-/* Heading */
-h1 {
+.login-card {
+    background: #ffffff;
+    padding: 35px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.login-header {
     text-align: center;
-    margin-bottom: 20px;
-    color: #333;
+    margin-bottom: 25px;
 }
 
-/* Input box styling */
-.input-box {
-    margin-bottom: 15px;
+.login-header h2 {
+    color: #2d5a27; /* Forest Green Theme */
+    margin-top: 10px;
 }
 
-.input-box input {
+/* Form Controls */
+.form-group {
+    margin-bottom: 18px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+
+.form-group input {
     width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 14px;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
 }
 
-/* Remember me and forgot password */
-.Reminder-forgot {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 12px;
-    margin-bottom: 20px;
+.form-group input:focus {
+    border-color: #2d5a27;
+    outline: none;
+    box-shadow: 0 0 5px rgba(45, 90, 39, 0.2);
 }
 
-.Reminder-forgot a {
-    text-decoration: none;
-    color: #007bff;
-}
-
-.Reminder-forgot a:hover {
-    text-decoration: underline;
-}
-
-/* Button styling */
-.btn {
+/* Button & Divider */
+.btn-login {
     width: 100%;
-    padding: 10px;
-    background-color: #007bff;
-    border: none;
-    border-radius: 4px;
+    background-color: #2d5a27;
     color: white;
-    font-size: 16px;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
     cursor: pointer;
+    margin-top: 10px;
 }
 
-.btn:hover {
-    background-color: #0056b3;
+.divider {
+    border: none;
+    border-top: 1px solid #eee;
+    margin: 25px 0;
 }
 
-/* Register link */
-.register-link {
-    text-align: center;
-    margin-top: 15px;
-    font-size: 12px;
+/* Registration Path Styling */
+.reg-links {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
 }
 
-.register-link a {
-    color: #007bff;
+.reg-btn {
     text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 10px 20px;
+    border-radius: 6px;
+    width: 100%;
+    text-align: center;
+    transition: 0.3s;
 }
 
-.register-link a:hover {
-    text-decoration: underline;
+.reg-btn.farmer {
+    background-color: #f1f8f0;
+    color: #2d5a27;
+    border: 1px solid #2d5a27;
+}
+
+.reg-btn.buyer {
+    background-color: #f1f8f0;
+    color: #2d5a27;
+    border: 1px solid #2d5a27;
+}
+
+/* --- Responsive Adjustments --- */
+@media (min-width: 400px) {
+    .reg-links {
+        flex-direction: row; /* Side-by-side buttons on larger screens */
+        justify-content: center;
+    }
+    .reg-btn {
+        width: auto;
+    }
 }

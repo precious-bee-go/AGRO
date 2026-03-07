@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Account - Preshy Marketplace</title>
+  <link rel="stylesheet" href="../css/account.css">
+</head>
+
+<body class="login-page">
+
+  <div class="login-container">
+    <div class="login-card">
+      <div class="login-header">
+        <h2>Create Account</h2>
+        <p>Join our community. Choose your account type to get started.</p>
+      </div>
+
+      <div class="account-type-selection">
+        <p>What type of account would you like to create?</p>
+        <div class="type-buttons">
+          <button onclick="redirectToRegister('farmer')" class="btn-type farmer">Register as Farmer</button>
+          <button onclick="redirectToRegister('buyer')" class="btn-type buyer">Register as Buyer</button>
+        </div>
+      </div>
+
+      <div class="back-to-login">
+        <p>Already have an account? <a href="Login.html">Login here</a></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function redirectToRegister(type) {
+      if (type === 'farmer') {
+        window.location.href = 'Register farmer.html';
+      } else if (type === 'buyer') {
+        window.location.href = 'Register.html';
+      }
+    }
+  </script>
+
+</body>
+
+</html>

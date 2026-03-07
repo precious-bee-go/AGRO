@@ -44,7 +44,7 @@ $orders_result = $conn->query($sql);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Orders - Preshy Marketplace</title>
-    <link rel="stylesheet" href="../css/orders.css">
+    <link rel="stylesheet" href="/agro/css/orders.css">
 </head>
 <body>
     <nav class="navbar">
@@ -100,7 +100,7 @@ $orders_result = $conn->query($sql);
         <?php endif; ?>
     </div>
 
-    <script src="../js/orders.js"></script>
+    <script src="/agro/js/orders.js"></script>
 </body>
 </html>
 

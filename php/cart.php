@@ -79,7 +79,7 @@ foreach ($cart as $item) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cart - Preshy Marketplace</title>
-    <link rel="stylesheet" href="../css/cart.css">
+    <link rel="stylesheet" href="/agro/css/cart.css">
 </head>
 <body>
     <nav class="navbar">
@@ -123,7 +123,7 @@ foreach ($cart as $item) {
         <?php endif; ?>
     </div>
 
-    <script src="../js/cart.js"></script>
+    <script src="/agro/js/cart.js"></script>
 </body>
 </html>
 

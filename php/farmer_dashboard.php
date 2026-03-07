@@ -41,7 +41,7 @@ $products_result = $conn->query($sql);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Farmer Dashboard - Preshy Marketplace</title>
-    <link rel="stylesheet" href="../css/farmer_dashboard.css">
+    <link rel="stylesheet" href="/agro/css/farmer_dashboard.css">
 </head>
 <body>
     <nav class="navbar">
@@ -117,7 +117,7 @@ $products_result = $conn->query($sql);
         </div>
     </div>
 
-    <script src="../js/farmer_dashboard.js"></script>
+    <script src="/agro/js/farmer_dashboard.js"></script>
 </body>
 </html>
 

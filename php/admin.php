@@ -61,7 +61,7 @@ $orders = $conn->query("SELECT o.*, u.name as buyer_name FROM orders o JOIN user
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - Preshy Marketplace</title>
-    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="/agro/css/admin.css">
 </head>
 <body>
     <nav class="navbar">
@@ -130,7 +130,7 @@ $orders = $conn->query("SELECT o.*, u.name as buyer_name FROM orders o JOIN user
         </div>
     </div>
 
-    <script src="../js/admin.js"></script>
+    <script src="/agro/js/admin.js"></script>
 </body>
 </html>
 

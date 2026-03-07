@@ -29,7 +29,7 @@ $messages = $conn->query("SELECT * FROM messages WHERE receiver_id = '$user_id' 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notifications - Preshy Marketplace</title>
-    <link rel="stylesheet" href="../css/notifications.css">
+    <link rel="stylesheet" href="/agro/css/notifications.css">
 </head>
 <body>
     <nav class="navbar">
@@ -67,7 +67,7 @@ $messages = $conn->query("SELECT * FROM messages WHERE receiver_id = '$user_id' 
         <?php endif; ?>
     </div>
 
-    <script src="../js/notifications.js"></script>
+    <script src="/agro/js/notifications.js"></script>
 </body>
 </html>
 

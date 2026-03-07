@@ -15,6 +15,14 @@ if (isset($_POST['register'])) {
     $password = $_POST['password'];
     $role = mysqli_real_escape_string($conn, $_POST['role'] ?? 'buyer');
 
+    // Check if email already exists
+    $check_sql = "SELECT id FROM users WHERE email = '$email'";
+    $check_result = mysqli_query($conn, $check_sql);
+    if (mysqli_num_rows($check_result) > 0) {
+        echo "Error: Email already registered. <a href='../html/Login.html'>Login here</a>";
+        exit();
+    }
+
     // Hash password for security
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 

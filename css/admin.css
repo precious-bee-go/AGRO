@@ -175,6 +175,29 @@ body {
     background: #218838;
 }
 
+/* Activities List */
+.activities-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.activity-item {
+    border: 1px solid #ddd;
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    background: #f9f9f9;
+}
+
+.activity-item p {
+    margin-bottom: 0.5rem;
+}
+
+.activity-item small {
+    color: #666;
+    font-size: 0.9rem;
+}
+
 /* Users List */
 .users-list {
     display: grid;

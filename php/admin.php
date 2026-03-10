@@ -8,7 +8,42 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] != 'admin') {
     exit();
 }
 
-// Handle order status update
+// Handle product approval/rejection
+if (isset($_GET['approve'])) {
+    $product_id = (int)$_GET['approve'];
+    $conn->query("UPDATE products SET status = 'approved' WHERE id = '$product_id'");
+    
+    // Get farmer id
+    $product_result = $conn->query("SELECT farmer_id FROM products WHERE id = '$product_id'");
+    $product = $product_result->fetch_assoc();
+    $farmer_id = $product['farmer_id'];
+    
+    // Send notification
+    $subject = "Product Approved!";
+    $message = "Your product has been approved and is now available for sale.";
+    $conn->query("INSERT INTO messages (sender_id, receiver_id, subject, message) VALUES ('{$_SESSION['user_id']}', '$farmer_id', '$subject', '$message')");
+    
+    header("Location: admin.php");
+    exit();
+}
+
+if (isset($_GET['reject'])) {
+    $product_id = (int)$_GET['reject'];
+    $conn->query("UPDATE products SET status = 'rejected' WHERE id = '$product_id'");
+    
+    // Get farmer id
+    $product_result = $conn->query("SELECT farmer_id FROM products WHERE id = '$product_id'");
+    $product = $product_result->fetch_assoc();
+    $farmer_id = $product['farmer_id'];
+    
+    // Send notification
+    $subject = "Product Rejected";
+    $message = "Your product has been rejected. Please check the requirements and try again.";
+    $conn->query("INSERT INTO messages (sender_id, receiver_id, subject, message) VALUES ('{$_SESSION['user_id']}', '$farmer_id', '$subject', '$message')");
+    
+    header("Location: admin.php");
+    exit();
+}
 if (isset($_GET['ready'])) {
     $order_id = (int)$_GET['ready'];
     $conn->query("UPDATE orders SET status = 'ready' WHERE id = '$order_id'");
@@ -127,6 +162,31 @@ $orders = $conn->query("SELECT o.*, u.name as buyer_name FROM orders o JOIN user
                     </div>
                 <?php endwhile; ?>
             </div>
+        </div>
+            <h2>Recent Notifications & Activities</h2>
+            <?php
+            $recent_messages = $conn->query("SELECT m.*, 
+                                                   sender.name as sender_name, 
+                                                   receiver.name as receiver_name 
+                                            FROM messages m 
+                                            JOIN users sender ON m.sender_id = sender.id 
+                                            JOIN users receiver ON m.receiver_id = receiver.id 
+                                            ORDER BY m.created_at DESC LIMIT 10");
+            ?>
+            <?php if ($recent_messages->num_rows > 0): ?>
+                <div class="activities-list">
+                    <?php while($msg = $recent_messages->fetch_assoc()): ?>
+                        <div class="activity-item">
+                            <p><strong><?php echo $msg['subject']; ?></strong></p>
+                            <p>From: <?php echo $msg['sender_name']; ?> → To: <?php echo $msg['receiver_name']; ?></p>
+                            <p><?php echo substr($msg['message'], 0, 100) . (strlen($msg['message']) > 100 ? '...' : ''); ?></p>
+                            <small><?php echo $msg['created_at']; ?></small>
+                        </div>
+                    <?php endwhile; ?>
+                </div>
+            <?php else: ?>
+                <p>No recent activities.</p>
+            <?php endif; ?>
         </div>
     </div>
 

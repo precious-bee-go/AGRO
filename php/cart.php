@@ -55,6 +55,48 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['checkout'])) {
             }
 
             $conn->commit();
+            
+            // Send notifications to farmers
+            $farmer_notifications = [];
+            foreach ($_SESSION['cart'] as $product_id => $item) {
+                // Get farmer info for this product
+                $farmer_sql = "SELECT p.farmer_id, u.name as farmer_name, p.name as product_name 
+                              FROM products p JOIN users u ON p.farmer_id = u.id 
+                              WHERE p.id = '$product_id'";
+                $farmer_result = $conn->query($farmer_sql);
+                $farmer_data = $farmer_result->fetch_assoc();
+                
+                $farmer_id = $farmer_data['farmer_id'];
+                $farmer_name = $farmer_data['farmer_name'];
+                $product_name = $farmer_data['product_name'];
+                
+                if (!isset($farmer_notifications[$farmer_id])) {
+                    $farmer_notifications[$farmer_id] = [
+                        'name' => $farmer_name,
+                        'products' => []
+                    ];
+                }
+                $farmer_notifications[$farmer_id]['products'][] = [
+                    'name' => $product_name,
+                    'quantity' => $item['quantity']
+                ];
+            }
+            
+            // Send notification to each farmer
+            foreach ($farmer_notifications as $farmer_id => $farmer_info) {
+                $buyer_name = $_SESSION['user_name'];
+                $product_list = "";
+                foreach ($farmer_info['products'] as $product) {
+                    $product_list .= "- {$product['name']} (Qty: {$product['quantity']})\n";
+                }
+                
+                $subject = "New Order Received!";
+                $message = "Hello {$farmer_info['name']},\n\nYou have received a new order from {$buyer_name}.\n\nOrder Details:\n{$product_list}\nOrder ID: #{$order_id}\n\nPlease prepare the products for delivery.";
+                
+                $conn->query("INSERT INTO messages (sender_id, receiver_id, subject, message) 
+                             VALUES ('1', '$farmer_id', '$subject', '$message')");
+            }
+            
             $_SESSION['cart'] = [];
             $message = "Order placed successfully! You will be notified when products are ready.";
         } catch (Exception $e) {

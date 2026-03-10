@@ -20,7 +20,19 @@ if (isset($_GET['read'])) {
 }
 
 // Fetch messages
-$messages = $conn->query("SELECT * FROM messages WHERE receiver_id = '$user_id' ORDER BY created_at DESC");
+if ($_SESSION['user_type'] == 'admin') {
+    // Admin sees all messages
+    $messages = $conn->query("SELECT m.*, 
+                                     sender.name as sender_name, 
+                                     receiver.name as receiver_name 
+                              FROM messages m 
+                              JOIN users sender ON m.sender_id = sender.id 
+                              JOIN users receiver ON m.receiver_id = receiver.id 
+                              ORDER BY m.created_at DESC");
+} else {
+    // Regular users see only their messages
+    $messages = $conn->query("SELECT * FROM messages WHERE receiver_id = '$user_id' ORDER BY created_at DESC");
+}
 ?>
 
 <!DOCTYPE html>
@@ -38,8 +50,11 @@ $messages = $conn->query("SELECT * FROM messages WHERE receiver_id = '$user_id' 
             <?php if ($user_type == 'buyer'): ?>
                 <li><a href="shop.php">Shop</a></li>
                 <li><a href="cart.php">Cart</a></li>
+                <li><a href="orders.php">My Orders</a></li>
             <?php elseif ($user_type == 'farmer'): ?>
                 <li><a href="farmer_dashboard.php">Dashboard</a></li>
+            <?php elseif ($user_type == 'admin'): ?>
+                <li><a href="admin.php">Dashboard</a></li>
             <?php endif; ?>
             <li><a href="notifications.php">Notifications</a></li>
             <li><a href="logout.php">Logout</a></li>
@@ -47,16 +62,19 @@ $messages = $conn->query("SELECT * FROM messages WHERE receiver_id = '$user_id' 
     </nav>
 
     <div class="notifications-container">
-        <h1>Your Notifications</h1>
+        <h1><?php echo $_SESSION['user_type'] == 'admin' ? 'All System Notifications' : 'Your Notifications'; ?></h1>
 
         <?php if ($messages->num_rows > 0): ?>
             <div class="messages-list">
                 <?php while($msg = $messages->fetch_assoc()): ?>
                     <div class="message-item <?php echo $msg['is_read'] ? 'read' : 'unread'; ?>">
                         <h3><?php echo $msg['subject']; ?></h3>
-                        <p><?php echo $msg['message']; ?></p>
+                        <?php if ($_SESSION['user_type'] == 'admin'): ?>
+                            <p><strong>From:</strong> <?php echo $msg['sender_name']; ?> → <strong>To:</strong> <?php echo $msg['receiver_name']; ?></p>
+                        <?php endif; ?>
+                        <p><?php echo nl2br($msg['message']); ?></p>
                         <small><?php echo $msg['created_at']; ?></small>
-                        <?php if (!$msg['is_read']): ?>
+                        <?php if (!$msg['is_read'] && $_SESSION['user_type'] != 'admin'): ?>
                             <a href="notifications.php?read=<?php echo $msg['id']; ?>" class="btn-mark-read">Mark as Read</a>
                         <?php endif; ?>
                     </div>

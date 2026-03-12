@@ -1,0 +1,10 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # 1. If the requested file exists in the root (like assets/css/style.css), serve it
+    RewriteCond %{REQUEST_FILENAME} -f
+    RewriteRule ^ - [L]
+
+    # 2. Redirect everything else to the public folder
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>

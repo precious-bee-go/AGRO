@@ -11,8 +11,11 @@ A premium, MVC-based agricultural marketplace designed to connect local farmers 
   - **Farmer Dashboard**: Manage listings, track incoming orders, and view real-time performance stats.
   - **Buyer Dashboard**: Monitor booking history, track order statuses, and manage delivery addresses.
 - **Secure Ordering**: Restricted "Add to Cart" and checkout functionality ensure only verified users can place orders.
-- **Dynamic Content**: Fully database-driven catalog with advanced category filtering.
-- **Mobile Responsive**: 100% responsive design with a dedicated mobile navigation sidebar.
+- **Advanced Discovery**: Deep search functionality with multi-faceted filtering by category, price, and cultivation method.
+- **Community Trust**: Integrated 5-star rating and review system for transparent product feedback.
+- **Admin Governance**: Comprehensive administrative suit for managing users, orders, and platform statistics.
+- **Mobile Responsive**: 100% responsive design with a dedicated mobile navigation sidebar and sliding menus.
+- **Universal Portability**: Dynamically detects platform URL for seamless deployment across different servers and folder structures.
 
 ## 🛠️ Technology Stack
 
@@ -28,8 +31,8 @@ The project includes a universal setup script for one-click deployment.
 
 1.  **Clone the project** into your local server directory (e.g., `htdocs`).
 2.  **Configure Database**: Ensure your MySQL settings in `config/database.php` are correct.
-3.  **Run Setup**: Visit the setup script in your browser:
-    `http://localhost/Preshy_Project/AGRO/setup.php`
+3.  **Run Setup**: Visit the setup script in your browser (the system will automatically detect your URL):
+    `http://[your-server-address]/AGRO/setup.php`
     _(This will automatically create the database, import the schema, and seed the demo products/images.)_
 
 ## 🔑 Test Login Credentials

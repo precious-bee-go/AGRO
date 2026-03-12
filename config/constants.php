@@ -1,7 +1,15 @@
 <?php
 // System Constants
 define('APP_NAME', 'PreshyMarketplace - Organic Agricultural Products');
-define('APP_URL', 'http://localhost/Preshy_Project/AGRO');
+// Dynamic APP_URL Detection
+$protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? "https" : "http";
+$host = $_SERVER['HTTP_HOST'];
+// Calculate base path from the current script
+$script = $_SERVER['SCRIPT_NAME'];
+$baseDir = str_replace('\\', '/', dirname(dirname($script)));
+if ($baseDir === '/')
+    $baseDir = '';
+define('APP_URL', $protocol . "://" . $host . $baseDir);
 
 // Path Constants
 define('ROOT_PATH', dirname(__DIR__));

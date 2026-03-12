@@ -25,8 +25,15 @@ abstract class Model
             $stmt->bind_param($types, ...$params);
         }
 
-        $stmt->execute();
-        return $stmt->get_result();
+        $success = $stmt->execute();
+        
+        // Return result set for SELECT, boolean for others
+        $result = $stmt->get_result();
+        if ($result === false && $success) {
+            return true;
+        }
+        
+        return $result;
     }
 
     public function __destruct()

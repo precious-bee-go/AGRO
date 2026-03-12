@@ -53,7 +53,6 @@
                         <li><a href="<?php echo APP_URL; ?>/dashboard">Dashboard</a></li>
                         <li><a href="<?php echo APP_URL; ?>/auth/logout" class="btn btn-outline-sm">Logout</a></li>
                     <?php else: ?>
-                        <li><a href="<?php echo APP_URL; ?>/auth/register">Register</a></li>
                         <li><a href="<?php echo APP_URL; ?>/auth/login">Login</a></li>
                         <li class="about-getstarted-stack">
                             <a href="<?php echo APP_URL; ?>/home/about" class="nav-link">About us</a>

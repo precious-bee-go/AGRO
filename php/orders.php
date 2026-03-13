@@ -32,7 +32,7 @@ $sql = "SELECT o.*, GROUP_CONCAT(p.name SEPARATOR ', ') as products
         FROM orders o 
         JOIN order_items oi ON o.id = oi.order_id 
         JOIN products p ON oi.product_id = p.id 
-        WHERE o.buyer_id = '$user_id' 
+        WHERE buyer_id = '$user_id' 
         GROUP BY o.id 
         ORDER BY o.created_at DESC";
 $orders_result = $conn->query($sql);

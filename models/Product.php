@@ -26,7 +26,7 @@ class Product extends Model
      */
     public function create($data)
     {
-        $sql = "INSERT INTO products (farmer_id, category_id, name, description, price_per_unit, unit, cultivation_method, status) 
+        $sql = "INSERT INTO products (farmer_id, category_id, name, description, price_per_unit, image, unit, cultivation_method, status) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         $this->query($sql, [
             $data['farmer_id'],
@@ -37,6 +37,7 @@ class Product extends Model
             $data['unit'],
             $data['cultivation_method'],
             $data['status']
+            $data['image'],
         ], "iissdsss");
 
         return $this->db->insert_id;

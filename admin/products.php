@@ -7,10 +7,30 @@ if(!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
     exit();
 }
 
-// Get all products with farmer info
+// Handle admin product purge action
+if (isset($_GET['action']) && $_GET['action'] === 'purge_deleted') {
+    try {
+        // Remove order_items referencing deleted products first to maintain referential integrity
+        $deleteItems = $conn->prepare("DELETE oi FROM order_items oi JOIN products p ON oi.product_id = p.id WHERE p.status = 'deleted'");
+        $deleteItems->execute();
+
+        // Remove deleted products
+        $deleteProducts = $conn->prepare("DELETE FROM products WHERE status = 'deleted'");
+        $deleteProducts->execute();
+
+        $_SESSION['success'] = 'Deleted products purged successfully.';
+    } catch (PDOException $e) {
+        $_SESSION['error'] = 'Could not purge deleted products: ' . $e->getMessage();
+    }
+    header('Location: products.php');
+    exit();
+}
+
+// Get all products with farmer info excluding soft-deleted entries
 $stmt = $conn->query("SELECT p.*, u.username, u.full_name 
                       FROM products p 
                       LEFT JOIN users u ON p.farmer_id = u.id 
+                      WHERE p.status != 'deleted' 
                       ORDER BY p.created_at DESC");
 $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -324,6 +344,11 @@ $unique_categories = count(array_unique($categories));
             color: #dc3545;
         }
         
+        .status-sold {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+        
         .category-badge {
             background: #e3f2fd;
             color: #1976d2;
@@ -435,6 +460,19 @@ $unique_categories = count(array_unique($categories));
 
 
 <!-- Admin Section - Appears below your header -->
+<?php if(isset($_SESSION['success'])): ?>
+    <div class="alert alert-success alert-dismissible fade show m-3" role="alert">
+        <?php echo $_SESSION['success']; unset($_SESSION['success']); ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+<?php endif; ?>
+<?php if(isset($_SESSION['error'])): ?>
+    <div class="alert alert-danger alert-dismissible fade show m-3" role="alert">
+        <?php echo $_SESSION['error']; unset($_SESSION['error']); ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+<?php endif; ?>
+
 <div class="admin-wrapper">
     <!-- Sidebar -->
     <div class="admin-sidebar">
@@ -505,9 +543,12 @@ $unique_categories = count(array_unique($categories));
         <div class="table-container">
             <div class="table-header">
                 <h2><i class="fas fa-list"></i> Products List</h2>
-                <div class="search-box">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="searchInput" placeholder="Search products...">
+                <div style="display:flex; gap:12px; align-items:center;">
+                    <button class="btn-add" onclick="if(confirm('Purge all soft-deleted products permanently?')) { window.location='products.php?action=purge_deleted'; }">Purge Deleted Products</button>
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="Search products...">
+                    </div>
                 </div>
             </div>
             
@@ -570,7 +611,7 @@ $unique_categories = count(array_unique($categories));
                             </td>
                             <td>
                                 <span class="status-badge status-<?php echo $product['status']; ?>">
-                                    <i class="fas fa-<?php echo $product['status'] == 'available' ? 'check-circle' : 'times-circle'; ?>" style="margin-right: 3px;"></i>
+                                    <i class="fas fa-<?php echo $product['status'] == 'available' ? 'check-circle' : ($product['status'] == 'sold' ? 'ban' : 'times-circle'); ?>" style="margin-right: 3px;"></i>
                                     <?php echo ucfirst(str_replace('_', ' ', $product['status'])); ?>
                                 </span>
                             </td>

@@ -9,9 +9,9 @@ if(!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
 
 // Get statistics
 $total_users = $conn->query("SELECT COUNT(*) FROM users")->fetchColumn();
-$total_products = $conn->query("SELECT COUNT(*) FROM products")->fetchColumn();
+$total_products = $conn->query("SELECT COUNT(*) FROM products WHERE status != 'deleted'")->fetchColumn();
 $total_orders = $conn->query("SELECT COUNT(*) FROM orders")->fetchColumn();
-$total_revenue = $conn->query("SELECT SUM(total_amount) FROM orders WHERE status != 'cancelled'")->fetchColumn();
+// total revenue is now shown in farmer dashboard per farmer only
 
 // Get recent orders
 $stmt = $conn->query("SELECT o.*, u.username FROM orders o 
@@ -91,6 +91,11 @@ $recent_orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <i class="fas fa-shopping-cart"></i> Orders
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="payments.php">
+                                <i class="fas fa-credit-card"></i> Farmer Payments
+                            </a>
+                        </li>
                         
                         <li class="nav-item mt-4">
                             <a class="nav-link text-warning" href="../index.php">
@@ -155,19 +160,7 @@ $recent_orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3 mb-3">
-                        <div class="card stat-card bg-warning text-white">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <h6 class="card-title">Total Revenue</h6>
-                                        <h2 class="mb-0"><?php echo number_format($total_revenue ?: 0, 2); ?>FCFA</h2>
-                                    </div>
-                                    <i class="fas fa-rupee-sign fa-3x opacity-50"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+
                 </div>
                 
                 <!-- Recent Orders -->

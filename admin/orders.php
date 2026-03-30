@@ -478,7 +478,7 @@ foreach($orders as $order) {
                         <th>Payment</th>
                         <th>Status</th>
                         <th>Date</th>
-                        
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody id="ordersTable">
@@ -513,8 +513,27 @@ foreach($orders as $order) {
                                 <i class="far fa-calendar-alt" style="color: #6c757d; margin-right: 5px;"></i>
                                 <?php echo date('d M Y', strtotime($order['order_date'])); ?>
                             </td>
-                            
-                        </tr>
+                            <td>
+                                <?php if($order['status'] != 'delivered' && $order['status'] != 'cancelled'): ?>
+                                    <form method="POST" action="../handlers/order_handler.php" style="display: inline;">
+                                        <input type="hidden" name="action" value="update_status">
+                                        <input type="hidden" name="order_id" value="<?php echo $order['id']; ?>">
+                                        <select name="status" onchange="this.form.submit()" class="form-select form-select-sm" style="width: auto; display: inline;">
+                                            <option value="pending" <?php echo $order['status'] == 'pending' ? 'selected' : ''; ?>>Pending</option>
+                                            <option value="processing" <?php echo $order['status'] == 'processing' ? 'selected' : ''; ?>>Processing</option>
+                                            <option value="delivered" <?php echo $order['status'] == 'delivered' ? 'selected' : ''; ?>>Delivered</option>
+                                            <option value="cancelled" <?php echo $order['status'] == 'cancelled' ? 'selected' : ''; ?>>Cancelled</option>
+                                        </select>
+                                    </form>
+                                <?php else: ?>
+                                    <span class="status-badge status-<?php echo $order['status']; ?>">
+                                        <i class="fas fa-<?php 
+                                            echo $order['status'] == 'delivered' ? 'check-circle' : 'times-circle'; 
+                                        ?>" style="margin-right: 3px;"></i>
+                                        <?php echo ucfirst($order['status']); ?>
+                                    </span>
+                                <?php endif; ?>
+                            </td>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>

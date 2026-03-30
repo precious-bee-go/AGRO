@@ -48,6 +48,11 @@ if(strpos($current_folder, '/') !== false) {
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link <?php echo in_array($current_file, ['contact.php']) ? 'active' : ''; ?>" href="<?php echo $base_prefix; ?>contact.php">
+                        <i class="fas fa-envelope"></i> Contact Us
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link <?php echo $current_file == 'product.php' ? 'active' : ''; ?>" 
                        href="<?php echo $base_prefix; ?>product.php">
                         <i class="fas fa-seedling"></i> Products
@@ -154,6 +159,17 @@ if(strpos($current_folder, '/') !== false) {
                                         }
                                     ?>">
                                         <i class="fas fa-plus-circle"></i> Add Product
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="<?php 
+                                        if($current_folder == 'farmer') {
+                                            echo 'payment.php';
+                                        } else {
+                                            echo $base_prefix . 'farmer/payment.php';
+                                        }
+                                    ?>">
+                                        <i class="fas fa-credit-card"></i> Make Payment
                                     </a>
                                 </li>
                             <?php else: ?>

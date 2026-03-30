@@ -74,7 +74,7 @@ require_once "config/database.php";
             <?php
             $stmt = $conn->prepare("SELECT p.*, u.full_name as farmer_name FROM products p 
                                     JOIN users u ON p.farmer_id = u.id 
-                                    WHERE p.status = 'available' 
+                                    WHERE p.status != 'deleted' AND p.status != 'sold' AND p.quantity > 0
                                     ORDER BY p.created_at DESC LIMIT 8");
             $stmt->execute();
             $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -88,7 +88,13 @@ require_once "config/database.php";
                 echo '<h5 class="card-title">' . $product['name'] . '</h5>';
                 echo '<p class="card-text">' . number_format($product['price'], 2) . ' per ' . $product['unit'] . '</p>';
                 echo '<p class="card-text"><small class="text-muted">Farmer: ' . $product['farmer_name'] . '</small></p>';
-                echo '<a href="product.php?id=' . $product['id'] . '" class="btn btn-success btn-sm">View Details</a>';
+                
+                if($product['status'] == 'sold' || $product['quantity'] <= 0) {
+                    echo '<div class="alert alert-danger mb-2" style="padding: 5px 10px; font-size: 0.9rem;"><strong>Sold Out</strong></div>';
+                    echo '<a href="product_detail.php?id=' . $product['id'] . '" class="btn btn-secondary btn-sm disabled">View Details</a>';
+                } else {
+                    echo '<a href="product_detail.php?id=' . $product['id'] . '" class="btn btn-success btn-sm">View Details</a>';
+                }
                 echo '</div></div></div>';
             }
             ?>

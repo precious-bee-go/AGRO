@@ -21,7 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $quantity = intval($_POST['quantity']);
         
         // Check product availability
-        $stmt = $conn->prepare("SELECT quantity FROM products WHERE id = ?");
+        $stmt = $conn->prepare("SELECT quantity, status FROM products WHERE id = ?");
         $stmt->execute([$product_id]);
         $product = $stmt->fetch(PDO::FETCH_ASSOC);
         
@@ -31,8 +31,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             exit();
         }
         
-        if($quantity > $product['quantity']) {
-            $_SESSION['error'] = "Only {$product['quantity']} items available";
+        // Cast to int to ensure proper comparison
+        $available_qty = intval($product['quantity']);
+        
+        // Check if product is sold or out of stock
+        if($product['status'] == 'sold' || $available_qty <= 0) {
+            $_SESSION['error'] = "This product is sold out";
+            header("Location: ../product.php");
+            exit();
+        }
+        
+        if($quantity > $available_qty) {
+            $_SESSION['error'] = "Only {$available_qty} items available";
             header("Location: ../product.php");
             exit();
         }

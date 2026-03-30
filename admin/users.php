@@ -7,6 +7,100 @@ if(!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
     exit();
 }
 
+// Ensure block status column exists
+try {
+    $conn->exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_active TINYINT(1) NOT NULL DEFAULT 1");
+    $conn->exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS payment_status ENUM('pending', 'paid') NOT NULL DEFAULT 'pending'");
+    $conn->exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS payment_amount DECIMAL(10,2) DEFAULT 1000.00");
+    $conn->exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS payment_date DATETIME NULL");
+} catch (PDOException $e) {
+    // If ALTER fails (old MySQL), ignore and continue; existing users may still work.
+}
+
+// Process admin actions
+if (isset($_GET['action']) && isset($_GET['id'])) {
+    $action = $_GET['action'];
+    $userId = intval($_GET['id']);
+
+    if ($userId > 0) {
+        $stmt = $conn->prepare("SELECT role, is_active FROM users WHERE id = ?");
+        $stmt->execute([$userId]);
+        $targetUser = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($targetUser) {
+            if ($targetUser['role'] === 'admin') {
+                $_SESSION['error'] = 'Admin user cannot be modified.';
+            } else {
+                if ($action === 'delete') {
+                    $conn->beginTransaction();
+                    try {
+                        // Customer cleanup
+                        if ($targetUser['role'] === 'customer') {
+                            $conn->prepare("DELETE FROM cart WHERE user_id = ?")->execute([$userId]);
+
+                            $orderIds = $conn->prepare("SELECT id FROM orders WHERE user_id = ?");
+                            $orderIds->execute([$userId]);
+                            $orders = $orderIds->fetchAll(PDO::FETCH_COLUMN);
+
+                            if (!empty($orders)) {
+                                $deleteOrderItems = $conn->prepare("DELETE FROM order_items WHERE order_id = ?");
+                                foreach ($orders as $orderId) {
+                                    $deleteOrderItems->execute([$orderId]);
+                                }
+                            }
+
+                            $conn->prepare("DELETE FROM orders WHERE user_id = ?")->execute([$userId]);
+                        }
+
+                        // Farmer cleanup
+                        if ($targetUser['role'] === 'farmer') {
+                            $productIdsStmt = $conn->prepare("SELECT id, image FROM products WHERE farmer_id = ?");
+                            $productIdsStmt->execute([$userId]);
+                            $products = $productIdsStmt->fetchAll(PDO::FETCH_ASSOC);
+
+                            if (!empty($products)) {
+                                $deleteOrderItemsByProduct = $conn->prepare("DELETE FROM order_items WHERE product_id = ?");
+                                foreach ($products as $product) {
+                                    $deleteOrderItemsByProduct->execute([$product['id']]);
+
+                                    if (!empty($product['image'])) {
+                                        $imgPath = __DIR__ . '/../uploads/products/' . $product['image'];
+                                        if (file_exists($imgPath)) {
+                                            @unlink($imgPath);
+                                        }
+                                    }
+                                }
+                            }
+
+                            $conn->prepare("DELETE FROM products WHERE farmer_id = ?")->execute([$userId]);
+                        }
+
+                        // Remove user record
+                        $conn->prepare("DELETE FROM users WHERE id = ?")->execute([$userId]);
+
+                        $conn->commit();
+                        $_SESSION['success'] = 'User and related data deleted permanently.';
+                    } catch (PDOException $e) {
+                        $conn->rollBack();
+                        $_SESSION['error'] = 'Failed to delete user: ' . $e->getMessage();
+                    }
+                } elseif ($action === 'toggle_block') {
+                    $newStatus = $targetUser['is_active'] ? 0 : 1;
+                    $blockStmt = $conn->prepare("UPDATE users SET is_active = ? WHERE id = ?");
+                    $blockStmt->execute([$newStatus, $userId]);
+                    $_SESSION['success'] = $newStatus ? 'User unblocked successfully.' : 'User blocked successfully.';
+                }
+            }
+        } else {
+            $_SESSION['error'] = 'Selected user not found.';
+        }
+    }
+
+    header('Location: users.php');
+    exit();
+}
+
+
 // Get all users
 $stmt = $conn->query("SELECT * FROM users ORDER BY created_at DESC");
 $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -381,9 +475,20 @@ $customer_count = $conn->query("SELECT COUNT(*) FROM users WHERE role = 'custome
     <div class="admin-content">
         <div class="content-header">
             <h1><i class="fas fa-users"></i> Manage Users</h1>
-           
         </div>
-        
+
+        <?php if(!empty($_SESSION['success'])): ?>
+            <div style="margin-bottom: 15px; padding: 12px 20px; background: #d4edda; color: #155724; border: 1px solid #c3e6cb; border-radius: 5px;">
+                <?php echo $_SESSION['success']; unset($_SESSION['success']); ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if(!empty($_SESSION['error'])): ?>
+            <div style="margin-bottom: 15px; padding: 12px 20px; background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 5px;">
+                <?php echo $_SESSION['error']; unset($_SESSION['error']); ?>
+            </div>
+        <?php endif; ?>
+
         <!-- Stats Cards -->
         <div class="stats-grid">
             <div class="stat-card">
@@ -446,7 +551,8 @@ $customer_count = $conn->query("SELECT COUNT(*) FROM users WHERE role = 'custome
                         <th>Email</th>
                         <th>Role</th>
                         <th>Joined</th>
-                        
+                        <th>Status</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody id="usersTable">
@@ -470,7 +576,25 @@ $customer_count = $conn->query("SELECT COUNT(*) FROM users WHERE role = 'custome
                                 <i class="far fa-calendar-alt" style="color: #6c757d; margin-right: 5px;"></i>
                                 <?php echo date('d M Y', strtotime($user['created_at'])); ?>
                             </td>
-                           
+                            <td>
+                                <?php if(isset($user['is_active']) && $user['is_active'] == 0): ?>
+                                    <span class="role-badge" style="background:#ffe5e5;color:#c82333;">Blocked</span>
+                                <?php else: ?>
+                                    <span class="role-badge" style="background:#e8f5e9;color:#28a745;">Active</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php if($user['role'] !== 'admin'): ?>
+                                    <button class="btn-icon btn-edit" onclick="confirmAction('users.php?action=toggle_block&id=<?php echo $user['id']; ?>', '<?php echo $user['is_active'] ? 'Block this user?' : 'Unblock this user?'; ?>')" title="<?php echo $user['is_active'] ? 'Block' : 'Unblock'; ?>">
+                                        <i class="fas fa-user-<?php echo $user['is_active'] ? 'slash' : 'check'; ?>"></i>
+                                    </button>
+                                    <button class="btn-icon btn-delete" onclick="confirmAction('users.php?action=delete&id=<?php echo $user['id']; ?>', 'Archive this user and hide related data?')" title="Archive">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                <?php else: ?>
+                                    <span style="color:#6c757d;">—</span>
+                                <?php endif; ?>
+                            </td>
                         </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
@@ -508,6 +632,12 @@ function addUser() {
 function editUser(id) {
     alert('Edit user: ' + id);
     // window.location.href = 'edit-user.php?id=' + id;
+}
+
+function confirmAction(url, message) {
+    if (confirm(message)) {
+        window.location.href = url;
+    }
 }
 
 function deleteUser(id) {

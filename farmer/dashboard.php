@@ -9,8 +9,13 @@ if(!isset($_SESSION['user_id']) || $_SESSION['role'] != 'farmer') {
 
 $farmer_id = $_SESSION['user_id'];
 
-// Get farmer's products
-$stmt = $conn->prepare("SELECT * FROM products WHERE farmer_id = ? ORDER BY created_at DESC");
+// Get farmer payment status
+$stmt = $conn->prepare("SELECT payment_status, payment_amount FROM users WHERE id = ?");
+$stmt->execute([$farmer_id]);
+$payment_info = $stmt->fetch(PDO::FETCH_ASSOC);
+
+// Get farmer's products (exclude deleted)
+$stmt = $conn->prepare("SELECT * FROM products WHERE farmer_id = ? AND status != 'deleted' ORDER BY created_at DESC");
 $stmt->execute([$farmer_id]);
 $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -24,6 +29,15 @@ $stmt = $conn->prepare("SELECT oi.*, o.order_date, o.status, o.user_id, p.name a
                         ORDER BY o.order_date DESC LIMIT 10");
 $stmt->execute([$farmer_id]);
 $recent_orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Calculate revenue earned by this farmer for completed orders (non-cancelled)
+$stmt = $conn->prepare("SELECT SUM(oi.price * oi.quantity) AS farmer_revenue
+                        FROM order_items oi
+                        JOIN orders o ON oi.order_id = o.id
+                        JOIN products p ON oi.product_id = p.id
+                        WHERE p.farmer_id = ? AND o.status != 'cancelled'");
+$stmt->execute([$farmer_id]);
+$farmer_revenue = $stmt->fetchColumn() ?: 0;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -106,7 +120,62 @@ $recent_orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
             </div>
         </div>
-        
+
+        <!-- Payment Status Alert -->
+        <?php if($payment_info['payment_status'] != 'paid'): ?>
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Payment Required:</strong> You need to pay the registration fee of <?php echo number_format($payment_info['payment_amount'], 2); ?> FCFA to start adding products.
+                    <a href="payment.php" class="alert-link">Make Payment Now</a>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            </div>
+        </div>
+        <?php else: ?>
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <strong>Payment Completed:</strong> Your registration fee has been paid. You can now add and manage products.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            </div>
+        </div>
+        <?php endif; ?>
+
+        <!-- Quick Actions -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Quick Actions</h5>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <?php if($payment_info['payment_status'] == 'paid'): ?>
+                                <a href="add_product.php" class="btn btn-success">
+                                    <i class="fas fa-plus me-2"></i>Add New Product
+                                </a>
+                                <a href="my_products.php" class="btn btn-outline-primary">
+                                    <i class="fas fa-box me-2"></i>View My Products
+                                </a>
+                            <?php else: ?>
+                                <a href="payment.php" class="btn btn-warning">
+                                    <i class="fas fa-credit-card me-2"></i>Make Payment
+                                </a>
+                                <button class="btn btn-secondary" disabled title="Complete payment first">
+                                    <i class="fas fa-plus me-2"></i>Add New Product
+                                </button>
+                            <?php endif; ?>
+                            <a href="orders.php" class="btn btn-outline-info">
+                                <i class="fas fa-shopping-cart me-2"></i>View Orders
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Statistics Cards -->
         <div class="row mb-4">
             <div class="col-md-3">
@@ -145,8 +214,8 @@ $recent_orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
             <div class="col-md-3">
                 <div class="stat-card">
-                    <h6 class="text-muted">Total Orders</h6>
-                    <h2><?php echo count($recent_orders); ?></h2>
+                    <h6 class="text-muted">Revenue Earned</h6>
+                    <h2><?php echo number_format($farmer_revenue, 2); ?> FCFA</h2>
                 </div>
             </div>
         </div>

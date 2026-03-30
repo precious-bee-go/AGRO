@@ -41,6 +41,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         
         // Add order items and update product quantities
         foreach($cart_items as $item) {
+            // VERIFY availability before processing (prevents overselling in race conditions)
+            $stmt = $conn->prepare("SELECT quantity FROM products WHERE id = ?");
+            $stmt->execute([$item['product_id']]);
+            $current_product = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if(!$current_product || intval($current_product['quantity']) < intval($item['quantity'])) {
+                throw new Exception("Insufficient stock for product ID: {$item['product_id']}. Available: " . ($current_product['quantity'] ?? 0) . ", Requested: {$item['quantity']}");
+            }
+            
             // Add to order items
             $stmt = $conn->prepare("INSERT INTO order_items (order_id, product_id, quantity, price) 
                                     VALUES (?, ?, ?, ?)");
@@ -49,6 +58,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // Update product quantity
             $stmt = $conn->prepare("UPDATE products SET quantity = quantity - ? WHERE id = ?");
             $stmt->execute([$item['quantity'], $item['product_id']]);
+            
+            // Check quantity again after deduction and mark as sold if needed
+            $stmt = $conn->prepare("SELECT quantity FROM products WHERE id = ?");
+            $stmt->execute([$item['product_id']]);
+            $updated_product = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if($updated_product && intval($updated_product['quantity']) <= 0) {
+                $stmt = $conn->prepare("UPDATE products SET status = 'sold', quantity = 0 WHERE id = ?");
+                $stmt->execute([$item['product_id']]);
+            }
         }
         
         // Clear cart
@@ -64,6 +83,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } catch(Exception $e) {
         $conn->rollBack();
         $_SESSION['error'] = "Checkout failed: " . $e->getMessage();
+        $_SESSION['error_detail'] = $e->getMessage();
         header("Location: ../checkout.php");
         exit();
     }

@@ -31,9 +31,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if(empty($errors)) {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
         
-        $stmt = $conn->prepare("INSERT INTO users (username, email, password, full_name, phone, address, role) 
-                                VALUES (?, ?, ?, ?, ?, ?, ?)");
-        if($stmt->execute([$username, $email, $hashed_password, $full_name, $phone, $address, $role])) {
+        // Ensure status column exists for block/unblock support
+        try {
+            $conn->exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_active TINYINT(1) NOT NULL DEFAULT 1");
+            $conn->exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS payment_status ENUM('pending', 'paid') NOT NULL DEFAULT 'pending'");
+            $conn->exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS payment_amount DECIMAL(10,2) DEFAULT 1000.00");
+            $conn->exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS payment_date DATETIME NULL");
+        } catch (PDOException $e) {
+            // ignore if not supported
+        }
+
+        $stmt = $conn->prepare("INSERT INTO users (username, email, password, full_name, phone, address, role, is_active, payment_status, payment_amount) 
+                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        if($stmt->execute([$username, $email, $hashed_password, $full_name, $phone, $address, $role, 1, 'pending', 1000.00])) {
             $_SESSION['success'] = "Registration successful! Please login.";
             header("Location: ../login.php");
             exit();

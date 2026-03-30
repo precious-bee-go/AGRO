@@ -56,7 +56,7 @@ $search = $_GET['search'] ?? '';
                     <?php
                     $sql = "SELECT p.*, u.full_name as farmer_name FROM products p 
                             JOIN users u ON p.farmer_id = u.id 
-                            WHERE p.status = 'available'";
+                            WHERE p.status != 'deleted'";
                     $params = [];
                     
                     if(!empty($category)) {
@@ -89,19 +89,15 @@ $search = $_GET['search'] ?? '';
                                         <p class="card-text"><small class="text-muted">Farmer: <?php echo $product['farmer_name']; ?></small></p>
                                         <p class="card-text"><?php echo substr($product['description'], 0, 100); ?>...</p>
                                         <div class="d-flex justify-content-between align-items-center">
-                                            <span class="badge bg-success">In Stock: <?php echo $product['quantity']; ?> <?php echo $product['unit']; ?></span>
-                                            <?php if(isset($_SESSION['user_id']) && $_SESSION['role'] == 'customer'): ?>
-                                                <form action="handlers/cart_handler.php" method="POST">
-                                                    <input type="hidden" name="action" value="add">
-                                                    <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
-                                                    <input type="number" name="quantity" value="1" min="1" max="<?php echo $product['quantity']; ?>" style="width: 60px;" class="form-control form-control-sm d-inline">
-                                                    <button type="submit" class="btn btn-success btn-sm">
-                                                        <i class="fas fa-cart-plus"></i> Add
-                                                    </button>
-                                                </form>
+                                            <?php if($product['status'] == 'sold' || $product['quantity'] <= 0): ?>
+                                                <span class="badge bg-danger">Sold Out</span>
                                             <?php else: ?>
-                                                <a href="login.php" class="btn btn-success btn-sm">Login to Buy</a>
+                                                <span class="badge bg-success">In Stock: <?php echo $product['quantity']; ?> <?php echo $product['unit']; ?></span>
                                             <?php endif; ?>
+                                            
+                                            <a href="product_detail.php?id=<?php echo $product['id']; ?>" class="btn btn-success btn-sm">
+                                                <i class="fas fa-eye"></i> View Details
+                                            </a>
                                         </div>
                                     </div>
                                 </div>

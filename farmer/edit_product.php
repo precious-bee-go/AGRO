@@ -25,8 +25,8 @@ if(!$product) {
     exit();
 }
 
-// Fetch categories
-$categories = ['Vegetables', 'Fruits', 'Grains', 'Dairy', 'Organic', 'Seeds'];
+// Fetch categories (restricted)
+$categories = ['Vegetables', 'Fruits', 'Tubers', 'Spices'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -85,13 +85,15 @@ $categories = ['Vegetables', 'Fruits', 'Grains', 'Dairy', 'Organic', 'Seeds'];
 
                             <div class="mb-3">
                                 <label class="form-label">Unit</label>
-                                <input type="text" name="unit" class="form-control" value="<?php echo htmlspecialchars($product['unit']); ?>" required>
+                                <select name="unit" class="form-control" required>
+                                    <option value="bunch" <?php echo $product['unit'] == 'bunch' ? 'selected' : ''; ?>>Bunch</option>
+                                    <option value="basket" <?php echo $product['unit'] == 'basket' ? 'selected' : ''; ?>>Basket</option>
+                                    <option value="hip" <?php echo $product['unit'] == 'hip' ? 'selected' : ''; ?>>Hip</option>
+                                    <option value="bags" <?php echo $product['unit'] == 'bags' ? 'selected' : ''; ?>>Bags</option>
+                                </select>
                             </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">Description</label>
-                                <textarea name="description" class="form-control" rows="4" required><?php echo htmlspecialchars($product['description']); ?></textarea>
-                            </div>
+                            <!-- Description removed per request -->
 
                             <div class="mb-3">
                                 <label class="form-label">Image</label>

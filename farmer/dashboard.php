@@ -416,10 +416,8 @@ $farmer_revenue = $stmt->fetchColumn() ?: 0;
                                     <option value="">Select Category</option>
                                     <option value="Vegetables">Vegetables</option>
                                     <option value="Fruits">Fruits</option>
-                                    <option value="Grains">Grains</option>
-                                    <option value="Dairy">Dairy</option>
-                                    <option value="Organic">Organic</option>
-                                    <option value="Seeds">Seeds</option>
+                                    <option value="Tubers">Tubers</option>
+                                    <option value="Spices">Spices</option>
                                 </select>
                             </div>
                         </div>
@@ -509,10 +507,8 @@ $farmer_revenue = $stmt->fetchColumn() ?: 0;
                                 <select name="category" id="edit_category" class="form-control" required>
                                     <option value="Vegetables">Vegetables</option>
                                     <option value="Fruits">Fruits</option>
-                                    <option value="Grains">Grains</option>
-                                    <option value="Dairy">Dairy</option>
-                                    <option value="Organic">Organic</option>
-                                    <option value="Seeds">Seeds</option>
+                                    <option value="Tubers">Tubers</option>
+                                    <option value="Spices">Spices</option>
                                 </select>
                             </div>
                         </div>

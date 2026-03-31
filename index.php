@@ -54,7 +54,7 @@ require_once "config/database.php";
         <h2 class="text-center mb-4">Shop by Category</h2>
         <div class="row">
             <?php
-            $categories = ['Vegetables', 'Fruits', 'Grains', 'Dairy', 'Organic', 'Seeds'];
+            $categories = ['Vegetables', 'Fruits', 'Tubers', 'Spices'];
             foreach($categories as $cat) {
                 echo '<div class="col-md-4 mb-3">';
                 echo '<div class="card text-center">';

@@ -47,11 +47,13 @@ if(strpos($current_folder, '/') !== false) {
                         <i class="fas fa-home"></i> Home
                     </a>
                 </li>
+                <?php if($current_file != 'index.php'): ?>
                 <li class="nav-item">
                     <a class="nav-link <?php echo in_array($current_file, ['contact.php']) ? 'active' : ''; ?>" href="<?php echo $base_prefix; ?>contact.php">
                         <i class="fas fa-envelope"></i> Contact Us
                     </a>
                 </li>
+                <?php endif; ?>
                 <li class="nav-item">
                     <a class="nav-link <?php echo $current_file == 'product.php' ? 'active' : ''; ?>" 
                        href="<?php echo $base_prefix; ?>product.php">
@@ -65,7 +67,7 @@ if(strpos($current_folder, '/') !== false) {
                     </a>
                     <ul class="dropdown-menu">
                         <?php
-                        $categories = ['Vegetables', 'Fruits', 'Grains', 'Dairy', 'Organic', 'Seeds'];
+                        $categories = ['Vegetables', 'Fruits', 'Tubers', 'Spices'];
                         foreach($categories as $cat) {
                             echo '<li><a class="dropdown-item" href="' . $base_prefix . 'product.php?category=' . $cat . '"> ' . $cat . '</a></li>';
                         }

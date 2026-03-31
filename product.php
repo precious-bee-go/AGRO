@@ -35,7 +35,7 @@ $search = $_GET['search'] ?? '';
                                 <select name="category" class="form-control">
                                     <option value="">All Categories</option>
                                     <?php
-                                    $categories = ['Vegetables', 'Fruits', 'Grains', 'Dairy', 'Organic', 'Seeds'];
+                                    $categories = ['Vegetables', 'Fruits', 'Tubers', 'Spices'];
                                     foreach($categories as $cat) {
                                         $selected = ($category == $cat) ? 'selected' : '';
                                         echo "<option value='$cat' $selected>$cat</option>";

@@ -155,9 +155,9 @@ if(strpos($current_folder, '/') !== false) {
                                 <li>
                                     <a class="dropdown-item" href="<?php 
                                         if($current_folder == 'farmer') {
-                                            echo 'dashboard.php#add-product';
+                                            echo 'add_product.php';
                                         } else {
-                                            echo $base_prefix . 'farmer/dashboard.php#add-product';
+                                            echo $base_prefix . 'farmer/add_product.php';
                                         }
                                     ?>">
                                         <i class="fas fa-plus-circle"></i> Add Product

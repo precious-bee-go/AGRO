@@ -6,6 +6,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = htmlspecialchars(trim($_POST['email']));
     $password = $_POST['password'];
 
+    if(empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $_SESSION['error'] = 'Please enter a valid email address.';
+        header("Location: ../login.php");
+        exit();
+    }
+
     // Ensure at least one admin exists for login recovery
     $adminCount = $conn->query("SELECT COUNT(*) FROM users WHERE role = 'admin'")->fetchColumn();
     if ($adminCount == 0) {

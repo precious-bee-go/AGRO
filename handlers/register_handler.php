@@ -16,7 +16,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     // Validation
     if(empty($username)) $errors[] = "Username is required";
-    if(empty($email)) $errors[] = "Email is required";
+    if(empty($email)) {
+        $errors[] = "Email is required";
+    } elseif(!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors[] = "Please enter a valid email address";
+    }
     if(empty($password)) $errors[] = "Password is required";
     if($password != $confirm_password) $errors[] = "Passwords do not match";
     if(strlen($password) < 6) $errors[] = "Password must be at least 6 characters";

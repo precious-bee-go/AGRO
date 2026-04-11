@@ -74,7 +74,7 @@ require_once "config/config.php";
                     </ul>
                 </div>
                 <div class="col-lg-6">
-                    <img src="https://via.placeholder.com/600x400/28a745/ffffff?text=Fresh+Farm+Products" alt="Fresh Farm Products" class="img-fluid rounded">
+                    <img src="assets/images/welcome_page.png" alt="Fresh Farm Products" class="img-fluid rounded">
                 </div>
             </div>
         </div>
